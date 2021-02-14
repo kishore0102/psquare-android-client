@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
-import './route_generator.dart';
+import 'package:psquare_android_client/login.dart';
+import 'package:psquare_android_client/notes.dart';
 
-void main() {
-  runApp(PsquareApp());
+void main() => runApp(PsquareApp());
+
+class PsquareApp extends StatefulWidget {
+  @override
+  _PsquareAppState createState() => _PsquareAppState();
 }
 
-class PsquareApp extends StatelessWidget {
+class _PsquareAppState extends State<PsquareApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.light(),
-      initialRoute: '/login',
-      onGenerateRoute: RouteGenerator.generateRoute,
-    );
+        debugShowCheckedModeBanner: false,
+        title: 'Psquare',
+        home: Notes(),
+        routes: <String, WidgetBuilder>{
+          "login": (BuildContext context) => new Login(),
+          "notes": (BuildContext context) => new Notes(),
+        });
   }
 }

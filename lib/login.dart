@@ -1,6 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:http/http.dart';
+// import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Login extends StatefulWidget {
   @override
@@ -8,9 +12,10 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  final loginViewTitle = 'Psquare Login';
   final _formKey = GlobalKey<FormState>();
   final Map<String, dynamic> formData = {'email': null, 'password': null};
+
+  Map<String, dynamic> jsonResponse;
 
   bool validateEmail(String value) {
     Pattern pattern =
@@ -22,9 +27,42 @@ class _LoginState extends State<Login> {
   String psquareURL =
       'https://psquare-springboot-service.herokuapp.com/api/user/login';
   Map<String, String> headers = {"Content-type": "application/json"};
+  dynamic snackbar = '';
+
+  @override
+  _LoginState() {
+    print("constructor ran");
+    checkForTokenAndRedirect();
+  }
+
+  void checkForTokenAndRedirect() async {
+    SharedPreferences storage = await SharedPreferences.getInstance();
+    String token = storage.getString('token');
+    if (token != null) {
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        Navigator.of(context).pushReplacementNamed("notes");
+      });
+    }
+  }
 
   void handleLoginSubmit() async {
     if (_formKey.currentState.validate()) {
+      showDialog(
+        barrierDismissible: false,
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text(
+                'Loading...',
+                style: TextStyle(
+                  fontSize: 15.0,
+                  fontFamily: 'CenturyGothic',
+                  fontWeight: FontWeight.normal,
+                ),
+              ),
+            );
+          });
+
       print("Processing...");
       _formKey.currentState.save();
       print(formData);
@@ -34,114 +72,301 @@ class _LoginState extends State<Login> {
       print(statusCode);
       String body = response.body;
       print(body);
+      jsonResponse = jsonDecode(response.body);
+      if (statusCode == 200) {
+        // FlutterSecureStorage storage = FlutterSecureStorage();
+        // await storage.write(
+        //     key: 'firstname', value: jsonResponse['user']['firtsname']);
+        // await storage.write(
+        //     key: 'lastname', value: jsonResponse['user']['lastname']);
+        // await storage.write(key: 'email', value: jsonResponse['user']['email']);
+        // await storage.write(
+        //     key: 'status', value: jsonResponse['user']['status']);
+        // await storage.write(key: 'token', value: jsonResponse['token']);
+        // String snackbarName = await storage.read(key: 'firstname');
+
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString("firstname", jsonResponse['user']['firtsname']);
+        prefs.setString("lastname", jsonResponse['user']['lastname']);
+        prefs.setString("email", jsonResponse['user']['email']);
+        prefs.setString("status", jsonResponse['user']['status']);
+        prefs.setString("token", jsonResponse['token']);
+        String snackbarName = jsonResponse['user']['firtsname'];
+        setState(() {
+          snackbar = "Hello " + snackbarName;
+        });
+
+        SchedulerBinding.instance.addPostFrameCallback((_) {
+          Navigator.of(context).pushReplacementNamed("notes");
+        });
+      } else {
+        Navigator.of(context).pop();
+        showDialog(
+          barrierDismissible: false,
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: Text(
+                  jsonResponse['message'],
+                  style: TextStyle(
+                    fontSize: 15.0,
+                    fontFamily: 'CenturyGothic',
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+                actions: <Widget>[
+                  MaterialButton(
+                      elevation: 5.0,
+                      child: Text(
+                        'OKAY!',
+                        style: TextStyle(
+                          fontSize: 15.0,
+                          fontFamily: 'CenturyGothic',
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      })
+                ],
+              );
+            });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () async => false,
+      onWillPop: () {
+        return new Future(() => false);
+      },
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(loginViewTitle),
-          centerTitle: true,
-          automaticallyImplyLeading: false,
-        ),
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'Welcome back buddy...',
-              style: Theme.of(context).textTheme.headline6,
-            ),
-            SizedBox(
-              height: 15,
-            ),
-            Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.all(15),
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Email address',
-                        hintText: 'Enter Your email address',
-                        prefixIcon: Icon(Icons.mail_outline),
-                      ),
-                      validator: (value) {
-                        if (!validateEmail(value)) {
-                          return 'Please enter valid mail address';
-                        }
-                        return null;
-                      },
-                      onSaved: (String value) {
-                        formData['email'] = value;
-                      },
+          resizeToAvoidBottomInset: true,
+          body: GestureDetector(
+            onTap: () {
+              FocusScopeNode currentFocus = FocusScope.of(context);
+              if (!currentFocus.hasPrimaryFocus &&
+                  currentFocus.focusedChild != null) {
+                currentFocus.focusedChild.unfocus();
+              }
+            },
+            child: Container(
+              child: Form(
+                key: _formKey,
+                child: Container(
+                  alignment: Alignment.center,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Container(
+                          child: Stack(
+                            children: <Widget>[
+                              Container(
+                                padding: EdgeInsets.only(top: 45.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Hello',
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontFamily: 'CenturyGothic',
+                                          fontSize: 90.0,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    Text(
+                                      '.',
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontFamily: 'CenturyGothic',
+                                          fontSize: 90.0,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                padding: EdgeInsets.only(top: 155.0),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Sign in to your account',
+                                      style: TextStyle(
+                                          color: Colors.black,
+                                          fontFamily: 'CenturyGothic',
+                                          fontSize: 20.0,
+                                          fontWeight: FontWeight.normal),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding:
+                              EdgeInsets.only(top: 60.0, left: 25.0, right: 25.0),
+                          child: Column(
+                            children: <Widget>[
+                              TextFormField(
+                                decoration: InputDecoration(
+                                  labelText: 'Email address',
+                                  prefixIcon: Icon(Icons.mail_outline,
+                                      color: Colors.grey),
+                                  labelStyle: TextStyle(
+                                      fontFamily: 'CenturyGothic',
+                                      fontWeight: FontWeight.normal,
+                                      color: Colors.grey),
+                                  focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(15.0),
+                                      borderSide: BorderSide(
+                                        color: Colors.grey,
+                                      )),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(15.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ),
+                                validator: (value) {
+                                  if (!validateEmail(value)) {
+                                    return 'Please enter valid mail address';
+                                  }
+                                  return null;
+                                },
+                                onSaved: (String value) {
+                                  formData['email'] = value;
+                                },
+                              ),
+                              SizedBox(
+                                height: 20.0,
+                              ),
+                              TextFormField(
+                                obscureText: true,
+                                decoration: InputDecoration(
+                                  labelText: 'Password',
+                                  prefixIcon:
+                                      Icon(Icons.lock, color: Colors.grey),
+                                  labelStyle: TextStyle(
+                                      fontFamily: 'CenturyGothic',
+                                      fontWeight: FontWeight.normal,
+                                      color: Colors.grey),
+                                  focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(15.0),
+                                      borderSide: BorderSide(
+                                        color: Colors.grey,
+                                      )),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(15.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ),
+                                validator: (value) {
+                                  if (value.isEmpty) {
+                                    return 'Please enter password';
+                                  }
+                                  return null;
+                                },
+                                onSaved: (String value) {
+                                  formData['password'] = value;
+                                },
+                              ),
+                              SizedBox(
+                                height: 20.0,
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: <Widget>[
+                                  InkWell(
+                                    onTap: () {
+                                      launch(
+                                          "https://psquare-reactjs-client.herokuapp.com/forgotPassword");
+                                    },
+                                    child: Text(
+                                      'Forgot your password',
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontFamily: 'CenturyGothic',
+                                        fontWeight: FontWeight.normal,
+                                      ),
+                                    ),
+                                  ),
+                                  Text(
+                                    '?',
+                                    style: TextStyle(fontFamily: 'Calibri'),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 20.0,
+                              ),
+                              Container(
+                                height: 50.0,
+                                child: Material(
+                                  borderRadius: BorderRadius.circular(150.0),
+                                  color: Colors.black,
+                                  child: MaterialButton(
+                                    minWidth: 200.0,
+                                    height: 50,
+                                    color: Colors.black,
+                                    child: new Text('L O G I N',
+                                        style: new TextStyle(
+                                            fontSize: 17.0,
+                                            fontFamily: 'CenturyGothic',
+                                            color: Colors.white)),
+                                    onPressed: () {
+                                      handleLoginSubmit();
+                                    },
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 40.0,
+                              ),
+                              Container(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Text('New to Psquare',
+                                        style: TextStyle(
+                                            fontFamily: 'CenturyGothic')),
+                                    Text(
+                                      '? ',
+                                      style: TextStyle(fontFamily: 'Calibri'),
+                                    ),
+                                    InkWell(
+                                      onTap: () {
+                                        launch(
+                                            "https://psquare-reactjs-client.herokuapp.com/register");
+                                      },
+                                      child: Text(
+                                        'Register',
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontFamily: 'CenturyGothic',
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        )
+                      ],
                     ),
                   ),
-                  Padding(
-                    padding: EdgeInsets.all(15),
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Password',
-                          hintText: 'Enter Password',
-                          prefixIcon: Icon(Icons.lock_outline)),
-                      obscureText: true,
-                      validator: (value) {
-                        if (value.isEmpty) {
-                          return 'Please enter password';
-                        }
-                        return null;
-                      },
-                      onSaved: (String value) {
-                        formData['password'] = value;
-                      },
-                    ),
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: <Widget>[
-                      new GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).pushReplacementNamed(
-                            '/forgotpassword',
-                            arguments: '',
-                          );
-                        },
-                        child: new Text('Forgot Password ?'),
-                      ),
-                      SizedBox(
-                        width: 20,
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 8,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      ElevatedButton(
-                        onPressed: () {
-                          handleLoginSubmit();
-                        },
-                        child: Text('Submit'),
-                      ),
-                    ],
-                  ),
-                ],
+                ),
               ),
             ),
-          ],
-        ),
-      ),
+          )),
     );
   }
 }

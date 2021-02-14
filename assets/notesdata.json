@@ -1,0 +1,83 @@
+[
+	{
+		"userid": "AAA0000001",
+		"seqnbr": 1,
+		"topic": "crackwatch",
+		"description": "get to know whether it is free or not",
+		"status": "A",
+		"createdat": "2021-01-25T12:28:23.807+00:00",
+		"updatedat": "2021-01-25T12:28:23.807+00:00"
+	},
+	{
+		"userid": "AAA0000001",
+		"seqnbr": 2,
+		"topic": "epic games",
+		"description": "free games every thursday",
+		"status": "A",
+		"createdat": "2021-01-25T12:28:23.807+00:00",
+		"updatedat": "2021-01-25T12:28:23.807+00:00"
+	},
+	{
+		"userid": "AAA0000001",
+		"seqnbr": 3,
+		"topic": "fitgirl",
+		"description": "get everything for free",
+		"status": "A",
+		"createdat": "2021-01-25T12:28:23.807+00:00",
+		"updatedat": "2021-01-25T12:28:23.807+00:00"
+	},
+	{
+		"userid": "AAA0000001",
+		"seqnbr": 1,
+		"topic": "crackwatch",
+		"description": "get to know whether it is free or not",
+		"status": "A",
+		"createdat": "2021-01-25T12:28:23.807+00:00",
+		"updatedat": "2021-01-25T12:28:23.807+00:00"
+	},
+	{
+		"userid": "AAA0000001",
+		"seqnbr": 2,
+		"topic": "epic games",
+		"description": "free games every thursday",
+		"status": "A",
+		"createdat": "2021-01-25T12:28:23.807+00:00",
+		"updatedat": "2021-01-25T12:28:23.807+00:00"
+	},
+	{
+		"userid": "AAA0000001",
+		"seqnbr": 3,
+		"topic": "fitgirl",
+		"description": "get everything for free",
+		"status": "A",
+		"createdat": "2021-01-25T12:28:23.807+00:00",
+		"updatedat": "2021-01-25T12:28:23.807+00:00"
+	},
+	{
+		"userid": "AAA0000001",
+		"seqnbr": 1,
+		"topic": "crackwatch",
+		"description": "get to know whether it is free or not",
+		"status": "A",
+		"createdat": "2021-01-25T12:28:23.807+00:00",
+		"updatedat": "2021-01-25T12:28:23.807+00:00"
+	},
+	{
+		"userid": "AAA0000001",
+		"seqnbr": 2,
+		"topic": "epic games",
+		"description": "free games every thursday",
+		"status": "A",
+		"createdat": "2021-01-25T12:28:23.807+00:00",
+		"updatedat": "2021-01-25T12:28:23.807+00:00"
+	},
+	{
+		"userid": "AAA0000001",
+		"seqnbr": 3,
+		"topic": "fitgirl",
+		"description": "get everything for free",
+		"status": "A",
+		"createdat": "2021-01-25T12:28:23.807+00:00",
+		"updatedat": "2021-01-25T12:28:23.807+00:00"
+	}
+]
