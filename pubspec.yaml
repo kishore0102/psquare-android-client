@@ -31,6 +31,9 @@ dependencies:
   shared_preferences: ^0.5.1+2
   flutter_secure_storage: ^3.3.5
   url_launcher:
+  jwt_decoder: 
+  giffy_dialog: ^1.8.0
+  fluttertoast: ^7.1.6
 
 dev_dependencies:
   flutter_test:
@@ -50,7 +53,13 @@ flutter:
         weight: 700
 
   assets:
-    - assets/notesdata.json
+    - assets/psquarelogo.png
+    - assets/loaderspin.gif
+    - assets/loaderblock.gif
+    - assets/loadingsand.gif
+    - assets/loadingspin1.gif
+    - assets/loadingspin2.gif
+
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

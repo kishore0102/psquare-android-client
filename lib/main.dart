@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:psquare_android_client/login.dart';
 import 'package:psquare_android_client/notes.dart';
+import 'package:psquare_android_client/notesitem.dart';
 
 void main() => runApp(PsquareApp());
 
@@ -19,6 +20,7 @@ class _PsquareAppState extends State<PsquareApp> {
         routes: <String, WidgetBuilder>{
           "login": (BuildContext context) => new Login(),
           "notes": (BuildContext context) => new Notes(),
+          "notesitem": (BuildContext context) => new Notesitem(),
         });
   }
 }
